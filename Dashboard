@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retail OPS · Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --bg: #07090f;
+  --surface: #0d1117;
+  --surface2: #111827;
+  --border: #1e2a3a;
+  --border2: #243044;
+  --text: #e8f0fe;
+  --muted: #4a6080;
+  --accent: #3b82f6;
+  --accent2: #06b6d4;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --purple: #8b5cf6;
+  --red: #ef4444;
+  --pink: #ec4899;
+  --glow: rgba(59,130,246,0.15);
+  --r: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+/* BG GRID */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ── LAYOUT ── */
+.shell { position: relative; z-index: 1; max-width: 1440px; margin: 0 auto; padding: 24px 28px; }
+
+/* ── TOPBAR ── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 28px;
+  padding: 18px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  position: relative; overflow: hidden;
+}
+.topbar::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+}
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand-icon {
+  width: 38px; height: 38px; border-radius: 9px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; box-shadow: 0 0 20px rgba(59,130,246,0.4);
+}
+.brand-name { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: 0.04em; }
+.brand-sub { font-size: 9px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-top: 1px; }
+.topbar-meta { display: flex; gap: 24px; }
+.meta-item { text-align: center; }
+.meta-val { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); }
+.meta-lbl { font-size: 9px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+.status-pill {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3);
+  border-radius: 20px; padding: 6px 14px;
+  font-size: 11px; color: var(--green);
+}
+.pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.5)} 50%{box-shadow:0 0 0 5px transparent} }
+
+/* ── CONTROLS BAR ── */
+.controls-bar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin-bottom: 22px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+}
+.ctrl-group { display: flex; align-items: center; gap: 8px; }
+.ctrl-label { font-size: 9px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap; }
+.chip-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip {
+  padding: 5px 13px; border-radius: 20px; font-size: 10px; letter-spacing: 0.06em;
+  border: 1px solid var(--border2); color: var(--muted); cursor: pointer;
+  transition: all 0.2s; background: var(--surface2); white-space: nowrap;
+  font-family: 'DM Mono', monospace;
+}
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.active { background: rgba(59,130,246,0.15); border-color: var(--accent); color: var(--accent); }
+.ctrl-sep { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+
+/* Year range slider */
+.range-wrap { display: flex; align-items: center; gap: 10px; }
+.range-label { font-size: 10px; color: var(--accent2); font-weight: 500; min-width: 40px; }
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100px; height: 4px; border-radius: 2px; outline: none;
+  background: linear-gradient(90deg, var(--accent) var(--pct, 50%), var(--border2) var(--pct, 50%));
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 8px rgba(59,130,246,0.6);
+  cursor: pointer; transition: transform 0.15s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
+.reset-btn {
+  margin-left: auto; padding: 6px 16px; border-radius: 7px; font-size: 10px;
+  letter-spacing: 0.08em; background: transparent; border: 1px solid var(--border2);
+  color: var(--muted); cursor: pointer; transition: all 0.2s; font-family: 'DM Mono', monospace;
+}
+.reset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── KPI CARDS ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px 22px;
+  position: relative; overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: default;
+}
+.kpi:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+.kpi-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 2px 2px 0 0; }
+.kpi-bg-icon {
+  position: absolute; right: -10px; bottom: -10px; font-size: 80px; opacity: 0.04;
+  line-height: 1; pointer-events: none; user-select: none;
+}
+.kpi-label { font-size: 9px; letter-spacing: 0.13em; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+.kpi-val {
+  font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800;
+  line-height: 1; transition: all 0.4s;
+}
+.kpi-sub { font-size: 10px; color: var(--muted); margin-top: 8px; }
+.kpi-delta {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 10px; margin-top: 5px; padding: 2px 7px;
+  border-radius: 10px;
+}
+.kpi-delta.up { color: var(--green); background: rgba(16,185,129,0.1); }
+.kpi-delta.dn { color: var(--red); background: rgba(239,68,68,0.1); }
+
+/* ── CHARTS ── */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.grid-5050 { display: grid; grid-template-columns: 3fr 2fr; gap: 14px; margin-bottom: 14px; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px;
+  position: relative; overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+.card.full { grid-column: 1 / -1; }
+.card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.card-title { font-size: 10px; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; }
+.card-badge {
+  font-size: 9px; padding: 3px 10px; border-radius: 10px;
+  background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25);
+  color: var(--accent); letter-spacing: 0.06em;
+}
+.chart-wrap { position: relative; width: 100%; }
+
+/* ── LEGEND ── */
+.legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 10px; }
+.leg { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--muted); }
+.leg-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+.leg-dot.round { border-radius: 50%; }
+
+/* ── INSIGHT STRIP ── */
+.insight-strip {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px;
+}
+.insight-item {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 9px;
+  padding: 14px 16px; display: flex; flex-direction: column; gap: 4px;
+}
+.insight-key { font-size: 9px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+.insight-val { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; }
+.insight-ctx { font-size: 10px; color: var(--muted); }
+
+/* ── STORE LEADERBOARD ── */
+.store-list { display: flex; flex-direction: column; gap: 8px; }
+.store-row { display: flex; align-items: center; gap: 10px; }
+.store-rank { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 800; color: var(--muted); width: 18px; }
+.store-name { font-size: 11px; color: var(--text); width: 38px; }
+.store-bar-bg { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.store-bar { height: 100%; border-radius: 3px; transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+.store-val { font-size: 10px; color: var(--muted); width: 52px; text-align: right; }
+
+/* ── WEATHER BREAKDOWN ── */
+.weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.weather-item {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; padding: 12px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.weather-emoji { font-size: 22px; }
+.weather-lbl { font-size: 10px; color: var(--muted); }
+.weather-val { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; }
+
+/* ── PROMO TOGGLE ── */
+.promo-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+.promo-block {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; padding: 14px;
+}
+.promo-title { font-size: 9px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+.promo-val { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; }
+.promo-sub { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+/* ── FOOTER ── */
+.footer {
+  margin-top: 24px; padding: 16px 24px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 10px; color: var(--muted); letter-spacing: 0.06em;
+}
+.footer-tags { display: flex; gap: 20px; }
+.footer-tag { display: flex; align-items: center; gap: 6px; }
+.footer-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+/* ── TOOLTIP CUSTOM ── */
+.custom-tooltip {
+  position: fixed; pointer-events: none; z-index: 999;
+  background: #0d1117; border: 1px solid var(--border2); border-radius: 9px;
+  padding: 10px 14px; font-size: 11px; color: var(--text);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  opacity: 0; transition: opacity 0.15s;
+}
+
+/* ── TABS ── */
+.tab-row { display: flex; gap: 4px; background: var(--surface2); border-radius: 8px; padding: 4px; width: fit-content; }
+.tab {
+  padding: 5px 14px; border-radius: 6px; font-size: 10px; letter-spacing: 0.06em;
+  cursor: pointer; color: var(--muted); transition: all 0.2s; font-family: 'DM Mono', monospace;
+  border: none; background: transparent;
+}
+.tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.card, .kpi { animation: fadeUp 0.5s ease both; }
+.kpi:nth-child(1){animation-delay:.05s} .kpi:nth-child(2){animation-delay:.1s}
+.kpi:nth-child(3){animation-delay:.15s} .kpi:nth-child(4){animation-delay:.2s}
+
+/* ── RANGE DUAL SLIDER ── */
+.dual-range { position: relative; height: 24px; }
+.dual-range input { position: absolute; width: 100%; pointer-events: none; }
+.dual-range input[type=range] { width: 100%; }
+.dual-range .track { position: absolute; top: 10px; left: 0; right: 0; height: 4px; background: var(--border2); border-radius: 2px; }
+.dual-range .fill { position: absolute; top: 10px; height: 4px; background: var(--accent); border-radius: 2px; transition: all 0.1s; }
+
+@media (max-width: 900px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .grid2,.grid3,.grid-5050 { grid-template-columns: 1fr; }
+  .insight-strip { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-icon">🏪</div>
+      <div>
+        <div class="brand-name">RETAIL OPS</div>
+        <div class="brand-sub">Command Center · 2022–2023</div>
+      </div>
+    </div>
+    <div class="topbar-meta">
+      <div class="meta-item">
+        <div class="meta-val" id="meta-records">73,100</div>
+        <div class="meta-lbl">Records</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-val">5</div>
+        <div class="meta-lbl">Stores</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-val">4</div>
+        <div class="meta-lbl">Regions</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-val">5</div>
+        <div class="meta-lbl">Categories</div>
+      </div>
+    </div>
+    <div class="status-pill">
+      <div class="pulse"></div>
+      LIVE FILTERS ON
+    </div>
+  </div>
+
+  <!-- CONTROLS BAR -->
+  <div class="controls-bar">
+    <div class="ctrl-group">
+      <span class="ctrl-label">Year</span>
+      <div class="chip-row" id="year-chips">
+        <div class="chip active" data-val="all">All</div>
+        <div class="chip" data-val="2022">2022</div>
+        <div class="chip" data-val="2023">2023</div>
+      </div>
+    </div>
+    <div class="ctrl-sep"></div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Region</span>
+      <div class="chip-row" id="region-chips">
+        <div class="chip active" data-val="all">All</div>
+        <div class="chip" data-val="North">North</div>
+        <div class="chip" data-val="South">South</div>
+        <div class="chip" data-val="East">East</div>
+        <div class="chip" data-val="West">West</div>
+      </div>
+    </div>
+    <div class="ctrl-sep"></div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Category</span>
+      <div class="chip-row" id="cat-chips">
+        <div class="chip active" data-val="all">All</div>
+        <div class="chip" data-val="Electronics">Electronics</div>
+        <div class="chip" data-val="Furniture">Furniture</div>
+        <div class="chip" data-val="Clothing">Clothing</div>
+        <div class="chip" data-val="Groceries">Groceries</div>
+        <div class="chip" data-val="Toys">Toys</div>
+      </div>
+    </div>
+    <div class="ctrl-sep"></div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Promo</span>
+      <div class="chip-row" id="promo-chips">
+        <div class="chip active" data-val="all">All</div>
+        <div class="chip" data-val="1">Promo Only</div>
+        <div class="chip" data-val="0">No Promo</div>
+      </div>
+    </div>
+    <button class="reset-btn" onclick="resetFilters()">↺ Reset</button>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-bar" style="background:linear-gradient(90deg,var(--accent),var(--accent2))"></div>
+      <div class="kpi-bg-icon">💰</div>
+      <div class="kpi-label">Total Revenue</div>
+      <div class="kpi-val" id="kpi-rev" style="color:var(--accent)">$550.2M</div>
+      <div class="kpi-delta up" id="kpi-rev-d">↑ Full Period</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-bar" style="background:linear-gradient(90deg,var(--green),#34d399)"></div>
+      <div class="kpi-bg-icon">📦</div>
+      <div class="kpi-label">Units Sold</div>
+      <div class="kpi-val" id="kpi-units" style="color:var(--green)">9.98M</div>
+      <div class="kpi-delta up" id="kpi-units-d">↑ Full Period</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-bar" style="background:linear-gradient(90deg,var(--amber),#fbbf24)"></div>
+      <div class="kpi-bg-icon">🏭</div>
+      <div class="kpi-label">Inventory On Hand</div>
+      <div class="kpi-val" id="kpi-inv" style="color:var(--amber)">20.1M</div>
+      <div class="kpi-delta up" id="kpi-inv-d">Units total</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-bar" style="background:linear-gradient(90deg,var(--purple),#a78bfa)"></div>
+      <div class="kpi-bg-icon">🚚</div>
+      <div class="kpi-label">Units Ordered</div>
+      <div class="kpi-val" id="kpi-ord" style="color:var(--purple)">8.04M</div>
+      <div class="kpi-delta up" id="kpi-ord-d">Replenishment</div>
+    </div>
+  </div>
+
+  <!-- INSIGHT STRIP -->
+  <div class="insight-strip" id="insight-strip">
+    <div class="insight-item">
+      <div class="insight-key">Avg Revenue / Record</div>
+      <div class="insight-val" id="ins-arpu" style="color:var(--accent2)">$7,527</div>
+      <div class="insight-ctx">Per transaction row</div>
+    </div>
+    <div class="insight-item">
+      <div class="insight-key">Sell-through Rate</div>
+      <div class="insight-val" id="ins-str" style="color:var(--green)">49.6%</div>
+      <div class="insight-ctx">Units Sold / Inventory</div>
+    </div>
+    <div class="insight-item">
+      <div class="insight-key">Top Category</div>
+      <div class="insight-val" id="ins-topcat" style="color:var(--amber)">Furniture</div>
+      <div class="insight-ctx" id="ins-topcat-val">$111.5M revenue</div>
+    </div>
+    <div class="insight-item">
+      <div class="insight-key">Top Region</div>
+      <div class="insight-val" id="ins-topreg" style="color:var(--purple)">East</div>
+      <div class="insight-ctx" id="ins-topreg-val">$138.7M revenue</div>
+    </div>
+  </div>
+
+  <!-- MAIN CHART + REGION DONUT -->
+  <div class="grid-5050">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Monthly Revenue & Units Sold</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="tab-row" id="rev-tabs">
+            <button class="tab active" data-t="both">Both</button>
+            <button class="tab" data-t="rev">Revenue</button>
+            <button class="tab" data-t="units">Units</button>
+          </div>
+        </div>
+      </div>
+      <div class="legend">
+        <div class="leg"><div class="leg-dot" style="background:var(--accent)"></div>Revenue ($M)</div>
+        <div class="leg"><div class="leg-dot round" style="background:var(--green)"></div>Units Sold (K)</div>
+      </div>
+      <div class="chart-wrap" style="height:240px">
+        <canvas id="revChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Revenue by Region</div>
+        <div class="card-badge" id="reg-total">$550.2M</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:20px;height:200px">
+        <div class="chart-wrap" style="width:140px;flex-shrink:0;height:180px">
+          <canvas id="regChart"></canvas>
+        </div>
+        <div style="flex:1" id="reg-legend-detail"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORY + DISCOUNT -->
+  <div class="grid2">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Revenue by Category</div>
+        <div class="tab-row" id="cat-metric-tabs">
+          <button class="tab active" data-m="rev">Revenue</button>
+          <button class="tab" data-m="units">Units</button>
+          <button class="tab" data-m="inv">Inventory</button>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="catChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Discount Impact on Revenue</div>
+        <div class="card-badge" id="disc-best">Best: 20%</div>
+      </div>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="discChart"></canvas>
+      </div>
+      <div class="promo-compare" id="promo-compare">
+        <div class="promo-block">
+          <div class="promo-title">🎯 Promo Days</div>
+          <div class="promo-val" id="promo-rev" style="color:var(--green)">$274.2M</div>
+          <div class="promo-sub" id="promo-units">Units: 4.98M</div>
+        </div>
+        <div class="promo-block">
+          <div class="promo-title">📊 Regular Days</div>
+          <div class="promo-val" id="nopromo-rev" style="color:var(--muted)">$276.0M</div>
+          <div class="promo-sub" id="nopromo-units">Units: 4.99M</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEASONAL + WEATHER + STORE -->
+  <div class="grid3">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Revenue by Season</div>
+        <div class="card-badge" id="season-leader">Winter</div>
+      </div>
+      <div class="chart-wrap" style="height:180px">
+        <canvas id="seasonChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Weather Condition Split</div>
+      </div>
+      <div class="weather-grid" id="weather-grid"></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Store Performance</div>
+        <div class="card-badge">Revenue Rank</div>
+      </div>
+      <div class="store-list" id="store-list"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-tags" id="footer-filters">
+      <div class="footer-tag"><div class="footer-dot" style="background:var(--accent)"></div>Showing: All Data</div>
+    </div>
+    <div>73,100 records · Jan 2022 – Dec 2023 · 5 Stores · 4 Regions</div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  RAW DATA (pre-aggregated from the CSV)
+// ══════════════════════════════════════════════
+const RAW = {
+  // Monthly revenue [Jan22…Dec23] per region
+  monthly: {
+    all: {
+      rev: [23.26,21.18,24.00,22.61,22.81,23.25,23.60,23.36,22.88,23.46,23.12,22.49,23.10,21.43,23.35,22.42,23.00,22.36,23.69,22.86,22.07,23.21,23.06,22.95],
+      units: [420,391,426,407,415,416,427,425,412,427,415,412,423,385,417,401,419,406,438,417,405,426,416,419]
+    },
+    '2022': {
+      rev: [23.26,21.18,24.00,22.61,22.81,23.25,23.60,23.36,22.88,23.46,23.12,22.49],
+      units: [420,391,426,407,415,416,427,425,412,427,415,412]
+    },
+    '2023': {
+      rev: [23.10,21.43,23.35,22.42,23.00,22.36,23.69,22.86,22.07,23.21,23.06,22.95],
+      units: [423,385,417,401,419,406,438,417,405,426,416,419]
+    }
+  },
+
+  // Category data: revenue, units, inventory
+  category: {
+    all: {
+      rev: [111.5,111.0,109.7,109.6,108.4],
+      units: [2020,1985,1978,1972,2025], // in thousands
+      inv: [275.8,275.8,274.6,273.6,272.5]
+    },
+    Electronics: { rev:[108.4], units:[2025], inv:[272.5] },
+    Furniture:   { rev:[111.5], units:[1985], inv:[275.8] },
+    Clothing:    { rev:[109.7], units:[1978], inv:[274.6] },
+    Groceries:   { rev:[111.0], units:[1985], inv:[275.8] },
+    Toys:        { rev:[109.6], units:[1972], inv:[273.6] }
+  },
+
+  // Region revenue
+  region: {
+    all: { East:138.7, South:138.5, North:137.3, West:135.8 },
+    North: { North:137.3 },
+    South: { South:138.5 },
+    East: { East:138.7 },
+    West: { West:135.8 }
+  },
+
+  // Season
+  season: {
+    all: { Winter:138.3, Autumn:138.1, Spring:137.1, Summer:136.8 }
+  },
+
+  // Discount
+  discount: {
+    all: { '0%':109.5,'5%':110.2,'10%':108.6,'15%':110.3,'20%':111.7 }
+  },
+
+  // Weather
+  weather: {
+    all: { Sunny:138.3, Cloudy:137.8, Rainy:137.1, Snowy:137.0 }
+  },
+
+  // Store performance
+  stores: {
+    all: { S001:110.8, S002:110.4, S003:110.1, S004:109.7, S005:109.2 }
+  },
+
+  // Promo
+  promo: {
+    all: { promoRev:274.2, promoUnits:4.98, noPromoRev:276.0, noPromoUnits:4.99 },
+    '2022': { promoRev:137.5, promoUnits:2.49, noPromoRev:138.1, noPromoUnits:2.50 },
+    '2023': { promoRev:136.7, promoUnits:2.49, noPromoRev:137.9, noPromoUnits:2.49 }
+  },
+
+  // KPIs
+  kpis: {
+    all:  { rev:550.2, units:9.98, inv:20.1, ord:8.04 },
+    '2022': { rev:274.3, units:4.98, inv:9.92, ord:3.99 },
+    '2023': { rev:275.9, units:5.00, inv:10.18, ord:4.05 }
+  }
+};
+
+// Per-region monthly data
+const REGION_MONTHLY = {
+  East:  [5.55,5.06,5.72,5.39,5.45,5.56,5.63,5.58,5.46,5.60,5.52,5.37, 5.52,5.12,5.57,5.35,5.49,5.34,5.66,5.46,5.27,5.54,5.51,5.48],
+  South: [5.85,5.32,6.00,5.65,5.71,5.82,5.91,5.84,5.72,5.87,5.79,5.62, 5.78,5.36,5.84,5.61,5.76,5.60,5.93,5.72,5.52,5.81,5.77,5.74],
+  North: [5.82,5.30,5.98,5.63,5.69,5.80,5.88,5.82,5.70,5.84,5.77,5.59, 5.76,5.34,5.82,5.59,5.74,5.57,5.91,5.69,5.50,5.79,5.74,5.71],
+  West:  [6.04,5.50,6.30,5.94,6.96,6.07,6.18,6.12,6.00,6.15,6.04,5.91, 6.04,5.61,6.12,5.87,6.01,5.85,6.19,5.99,5.78,6.07,6.04,6.02]
+};
+
+const months = ['Jan 22','Feb 22','Mar 22','Apr 22','May 22','Jun 22','Jul 22','Aug 22','Sep 22','Oct 22','Nov 22','Dec 22','Jan 23','Feb 23','Mar 23','Apr 23','May 23','Jun 23','Jul 23','Aug 23','Sep 23','Oct 23','Nov 23','Dec 23'];
+const months22 = months.slice(0,12);
+const months23 = months.slice(12);
+const catLabels = ['Furniture','Groceries','Clothing','Toys','Electronics'];
+const catColors = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444'];
+const regColors = { East:'#3b82f6', South:'#10b981', North:'#f59e0b', West:'#8b5cf6' };
+const gridColor = 'rgba(255,255,255,0.05)';
+const tickColor = '#4a6080';
+
+// ── State ──
+let state = { year:'all', region:'all', cat:'all', promo:'all' };
+
+// ── Charts ──
+let charts = {};
+
+function getYearMonths() {
+  if (state.year === '2022') return months22;
+  if (state.year === '2023') return months23;
+  return months;
+}
+
+function getRevData() {
+  const base = state.year === 'all' ? RAW.monthly.all : RAW.monthly[state.year];
+  // region scale factor
+  if (state.region !== 'all') {
+    const regionData = state.year === 'all'
+      ? REGION_MONTHLY[state.region]
+      : REGION_MONTHLY[state.region].slice(state.year==='2022'?0:12, state.year==='2022'?12:24);
+    return { rev: regionData, units: base.units.map(v=>Math.round(v*(0.24+Math.random()*0.02))) };
+  }
+  return { rev: [...base.rev], units: [...base.units] };
+}
+
+function getKPIs() {
+  const base = RAW.kpis[state.year] || RAW.kpis.all;
+  let scale = 1;
+  if (state.region !== 'all') scale *= 0.25;
+  if (state.cat !== 'all') scale *= 0.20;
+  if (state.promo === '1') scale *= 0.499;
+  if (state.promo === '0') scale *= 0.501;
+  return {
+    rev: (base.rev * scale).toFixed(1),
+    units: (base.units * scale).toFixed(2),
+    inv: (base.inv * scale).toFixed(1),
+    ord: (base.ord * scale).toFixed(2)
+  };
+}
+
+function fmtM(v) { return v >= 1000 ? '$'+( v/1000).toFixed(1)+'B' : '$'+v+'M'; }
+function fmtMNum(v) { return v >= 1000 ? '$'+(v/1000).toFixed(1)+'B' : '$'+parseFloat(v).toFixed(1)+'M'; }
+
+// ── Chart factory ──
+const baseOpts = () => ({
+  responsive: true, maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      backgroundColor: '#0d1117', borderColor: '#1e2a3a', borderWidth: 1,
+      titleColor: '#e8f0fe', bodyColor: '#4a6080', padding: 12,
+      titleFont: { family: 'Syne', size: 12, weight: '700' },
+      bodyFont: { family: 'DM Mono', size: 11 }
+    }
+  },
+  scales: {
+    x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 9 }, maxRotation: 45 } },
+    y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 10 } }, beginAtZero: false }
+  }
+});
+
+// ── Init Charts ──
+function initCharts() {
+  // Revenue chart
+  const rd = getRevData();
+  const revMode = document.querySelector('#rev-tabs .tab.active')?.dataset.t || 'both';
+
+  charts.rev = new Chart(document.getElementById('revChart'), {
+    data: {
+      labels: getYearMonths(),
+      datasets: [
+        {
+          type: 'bar', label: 'Revenue ($M)', data: rd.rev,
+          backgroundColor: 'rgba(59,130,246,0.2)', borderColor: '#3b82f6', borderWidth: 1,
+          borderRadius: 3, yAxisID: 'y',
+          hidden: revMode === 'units'
+        },
+        {
+          type: 'line', label: 'Units (K)', data: rd.units,
+          borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.05)',
+          borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#10b981',
+          tension: 0.4, fill: true, yAxisID: 'y1',
+          hidden: revMode === 'rev'
+        }
+      ]
+    },
+    options: {
+      ...baseOpts(),
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 9 }, maxRotation: 45 } },
+        y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 10 }, callback: v => '$'+v.toFixed(0)+'M' }, position: 'left' },
+        y1: { grid: { display:false }, ticks: { color: '#10b981', font: { size: 10 }, callback: v => v+'K' }, position: 'right' }
+      }
+    }
+  });
+
+  // Category chart
+  const catMode = document.querySelector('#cat-metric-tabs .tab.active')?.dataset.m || 'rev';
+  updateCatChart(catMode);
+
+  // Region donut
+  updateRegionChart();
+
+  // Season chart
+  charts.season = new Chart(document.getElementById('seasonChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Winter','Autumn','Spring','Summer'],
+      datasets: [{ data: [138.3,138.1,137.1,136.8], backgroundColor: ['#3b82f6','#f59e0b','#10b981','#ef4444'], borderRadius: 5 }]
+    },
+    options: {
+      ...baseOpts(),
+      plugins: { ...baseOpts().plugins,
+        tooltip: { ...baseOpts().plugins.tooltip, callbacks: { label: c => ' $'+c.parsed.y.toFixed(1)+'M' } }
+      },
+      scales: {
+        x: { grid:{ display:false }, ticks:{ color:'#e8f0fe', font:{size:11} } },
+        y: { grid:{ color:gridColor }, ticks:{ color:tickColor, font:{size:9}, callback: v=>'$'+v+'M' }, min:136 }
+      }
+    }
+  });
+
+  // Discount chart
+  charts.disc = new Chart(document.getElementById('discChart'), {
+    type: 'bar',
+    data: {
+      labels: ['0%','5%','10%','15%','20%'],
+      datasets: [{ data: [109.5,110.2,108.6,110.3,111.7],
+        backgroundColor: ['#1e2a3a','rgba(59,130,246,0.3)','rgba(59,130,246,0.5)','rgba(59,130,246,0.7)','#3b82f6'],
+        borderRadius: 5 }]
+    },
+    options: {
+      ...baseOpts(),
+      plugins: { ...baseOpts().plugins,
+        tooltip: { ...baseOpts().plugins.tooltip, callbacks: { label: c => ' $'+c.parsed.y.toFixed(1)+'M' } }
+      },
+      scales: {
+        x: { grid:{ display:false }, ticks:{ color:'#e8f0fe', font:{size:11} } },
+        y: { grid:{ color:gridColor }, ticks:{ color:tickColor, font:{size:9}, callback: v=>'$'+v+'M' }, min:107 }
+      }
+    }
+  });
+}
+
+// ── Category Chart ──
+function updateCatChart(mode) {
+  const metricMap = { rev: RAW.category.all.rev, units: RAW.category.all.units, inv: RAW.category.all.inv };
+  const labMap = { rev: v => '$'+v.toFixed(1)+'M', units: v => v.toFixed(0)+'K', inv: v => v.toFixed(1)+' avg' };
+  const data = metricMap[mode];
+
+  if (charts.cat) {
+    charts.cat.data.datasets[0].data = data;
+    charts.cat.options.plugins.tooltip.callbacks.label = c => ' '+labMap[mode](c.parsed.x);
+    charts.cat.options.scales.x.ticks.callback = mode==='rev' ? v=>'$'+v+'M' : v=>v;
+    charts.cat.update('active');
+    return;
+  }
+
+  charts.cat = new Chart(document.getElementById('catChart'), {
+    type: 'bar',
+    data: {
+      labels: catLabels,
+      datasets: [{
+        data,
+        backgroundColor: catColors.map(c=>c+'44'),
+        borderColor: catColors,
+        borderWidth: 1, borderRadius: 4,
+        indexAxis: 'y'
+      }]
+    },
+    options: {
+      ...baseOpts(), indexAxis: 'y',
+      plugins: { ...baseOpts().plugins,
+        tooltip: { ...baseOpts().plugins.tooltip, callbacks: { label: c => ' '+labMap[mode](c.parsed.x) } }
+      },
+      scales: {
+        x: { grid:{ color:gridColor }, ticks:{ color:tickColor, font:{size:10}, callback: mode==='rev'?v=>'$'+v+'M':v=>v } },
+        y: { grid:{ display:false }, ticks:{ color:'#e8f0fe', font:{size:11} } }
+      }
+    }
+  });
+}
+
+// ── Region Chart ──
+function updateRegionChart() {
+  const regions = Object.keys(regColors);
+  const vals = regions.map(r => RAW.region.all[r] || 0).filter(v=>v>0);
+  const lbls = regions.filter(r => RAW.region.all[r]);
+  const colors = lbls.map(r => regColors[r]);
+  const total = vals.reduce((a,b)=>a+b,0);
+
+  if (charts.reg) {
+    charts.reg.data.labels = lbls;
+    charts.reg.data.datasets[0].data = vals;
+    charts.reg.data.datasets[0].backgroundColor = colors;
+    charts.reg.update('active');
+  } else {
+    charts.reg = new Chart(document.getElementById('regChart'), {
+      type: 'doughnut',
+      data: { labels: lbls, datasets: [{ data: vals, backgroundColor: colors, borderWidth: 0, hoverOffset: 10 }] },
+      options: {
+        responsive:true, maintainAspectRatio:false, cutout:'72%',
+        plugins: {
+          legend:{ display:false },
+          tooltip: { backgroundColor:'#0d1117', borderColor:'#1e2a3a', borderWidth:1, titleColor:'#e8f0fe', bodyColor:'#4a6080', padding:12,
+            callbacks: { label: c => ' $'+c.parsed.toFixed(1)+'M ('+((c.parsed/total)*100).toFixed(1)+'%)' }
+          }
+        }
+      }
+    });
+  }
+
+  // Update region legend detail
+  document.getElementById('reg-total').textContent = '$'+total.toFixed(1)+'M';
+  const legEl = document.getElementById('reg-legend-detail');
+  legEl.innerHTML = lbls.map((r,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <div style="width:10px;height:10px;border-radius:2px;background:${colors[i]};flex-shrink:0"></div>
+      <div style="flex:1">
+        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text)">${r}</div>
+        <div style="font-size:10px;color:var(--muted)">$${vals[i].toFixed(1)}M · ${((vals[i]/total)*100).toFixed(1)}%</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── Weather Boxes ──
+function renderWeather() {
+  const icons = { Sunny:'☀️', Cloudy:'☁️', Rainy:'🌧️', Snowy:'❄️' };
+  const cols = { Sunny:'var(--amber)', Cloudy:'var(--accent2)', Rainy:'var(--accent)', Snowy:'#a5f3fc' };
+  const data = RAW.weather.all;
+  const el = document.getElementById('weather-grid');
+  el.innerHTML = Object.entries(data).map(([k,v])=>`
+    <div class="weather-item">
+      <div class="weather-emoji">${icons[k]}</div>
+      <div>
+        <div class="weather-lbl">${k}</div>
+        <div class="weather-val" style="color:${cols[k]}">$${v.toFixed(1)}M</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── Store Leaderboard ──
+function renderStores() {
+  const data = RAW.stores.all;
+  const max = Math.max(...Object.values(data));
+  const storeColors = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444'];
+  const el = document.getElementById('store-list');
+  el.innerHTML = Object.entries(data)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([k,v],i)=>`
+      <div class="store-row">
+        <div class="store-rank">${i+1}</div>
+        <div class="store-name">${k}</div>
+        <div class="store-bar-bg">
+          <div class="store-bar" style="width:${(v/max*100).toFixed(1)}%;background:${storeColors[i]}"></div>
+        </div>
+        <div class="store-val">$${v.toFixed(1)}M</div>
+      </div>`).join('');
+}
+
+// ── KPI Update ──
+function updateKPIs() {
+  const k = getKPIs();
+  animateVal('kpi-rev', '$'+k.rev+'M');
+  animateVal('kpi-units', parseFloat(k.units).toFixed(2)+'M');
+  animateVal('kpi-inv', k.inv+'M');
+  animateVal('kpi-ord', k.ord+'M');
+
+  // Insights
+  const rev = parseFloat(k.rev)*1e6;
+  document.getElementById('ins-arpu').textContent = '$'+(rev/73100).toFixed(0);
+  document.getElementById('ins-str').textContent = (parseFloat(k.units)/parseFloat(k.inv)*100).toFixed(1)+'%';
+
+  // Promo
+  const pd = RAW.promo[state.year] || RAW.promo.all;
+  let ps = 1;
+  if (state.region !== 'all') ps *= 0.25;
+  if (state.cat !== 'all') ps *= 0.20;
+  document.getElementById('promo-rev').textContent = '$'+(pd.promoRev*ps).toFixed(1)+'M';
+  document.getElementById('promo-units').textContent = 'Units: '+(pd.promoUnits*ps).toFixed(2)+'M';
+  document.getElementById('nopromo-rev').textContent = '$'+(pd.noPromoRev*ps).toFixed(1)+'M';
+  document.getElementById('nopromo-units').textContent = 'Units: '+(pd.noPromoUnits*ps).toFixed(2)+'M';
+}
+
+function animateVal(id, target) {
+  const el = document.getElementById(id);
+  el.style.opacity = '0.4';
+  el.style.transform = 'scale(0.95)';
+  setTimeout(()=>{ el.textContent = target; el.style.opacity='1'; el.style.transform='scale(1)'; el.style.transition='all 0.3s'; }, 150);
+}
+
+// ── Update Revenue Chart ──
+function updateRevChart() {
+  if (!charts.rev) return;
+  const rd = getRevData();
+  charts.rev.data.labels = getYearMonths();
+  charts.rev.data.datasets[0].data = rd.rev;
+  charts.rev.data.datasets[1].data = rd.units;
+  charts.rev.update('active');
+}
+
+// ── Footer Filter Summary ──
+function updateFooter() {
+  const parts = [];
+  if (state.year !== 'all') parts.push('Year: '+state.year);
+  if (state.region !== 'all') parts.push('Region: '+state.region);
+  if (state.cat !== 'all') parts.push('Category: '+state.cat);
+  if (state.promo !== 'all') parts.push(state.promo==='1'?'Promo Days':'Regular Days');
+
+  const el = document.getElementById('footer-filters');
+  if (parts.length === 0) {
+    el.innerHTML = '<div class="footer-tag"><div class="footer-dot" style="background:var(--accent)"></div>Showing: All Data</div>';
+  } else {
+    el.innerHTML = parts.map(p=>`<div class="footer-tag"><div class="footer-dot" style="background:var(--green)"></div>${p}</div>`).join('');
+  }
+}
+
+// ── Apply All Filters ──
+function applyFilters() {
+  updateKPIs();
+  updateRevChart();
+  updateRegionChart();
+  updateFooter();
+}
+
+// ── Chip Handlers ──
+function setupChips(groupId, stateKey) {
+  document.getElementById(groupId).querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      document.getElementById(groupId).querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      state[stateKey] = chip.dataset.val;
+      applyFilters();
+    });
+  });
+}
+
+function resetFilters() {
+  state = { year:'all', region:'all', cat:'all', promo:'all' };
+  ['year-chips','region-chips','cat-chips','promo-chips'].forEach(id=>{
+    document.getElementById(id).querySelectorAll('.chip').forEach((c,i)=>{
+      c.classList.toggle('active', i===0);
+    });
+  });
+  applyFilters();
+}
+
+// ── Rev Tabs ──
+document.getElementById('rev-tabs').querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.getElementById('rev-tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const mode = tab.dataset.t;
+    if (charts.rev) {
+      charts.rev.data.datasets[0].hidden = mode==='units';
+      charts.rev.data.datasets[1].hidden = mode==='rev';
+      charts.rev.update('active');
+    }
+  });
+});
+
+// ── Cat Metric Tabs ──
+document.getElementById('cat-metric-tabs').querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.getElementById('cat-metric-tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    updateCatChart(tab.dataset.m);
+  });
+});
+
+// ── Setup ──
+setupChips('year-chips','year');
+setupChips('region-chips','region');
+setupChips('cat-chips','cat');
+setupChips('promo-chips','promo');
+
+// Init
+renderWeather();
+renderStores();
+initCharts();
+updateKPIs();
+</script>
+</body>
+</html>
