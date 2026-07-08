@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moses Oluwatosin Olusola — Data Analyst & BI Consultant</title>
+<meta name="description" content="Data Analyst & Business Intelligence Consultant. SQL, Python, Power BI, Tableau, DAX.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0B1220;
+    --bg-panel:#111B2E;
+    --bg-panel-alt:#16233A;
+    --accent-teal:#35C4B0;
+    --accent-amber:#F2A94E;
+    --text-primary:#F2F5F8;
+    --text-muted:#8CA0B8;
+    --border:#22314A;
+    --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg-deep);
+    color:var(--text-primary);
+    font-family:'Inter',sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{color:inherit; text-decoration:none;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  .display{font-family:'Space Grotesk', sans-serif;}
+
+  ::selection{background:var(--accent-teal); color:#04211D;}
+
+  /* subtle grid backdrop + cursor spotlight */
+  .grid-bg{
+    position:fixed; inset:0; z-index:-2;
+    background-image:
+      linear-gradient(rgba(53,196,176,0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(53,196,176,0.045) 1px, transparent 1px);
+    background-size:48px 48px;
+    mask-image:radial-gradient(ellipse 100% 60% at 50% 0%, black 40%, transparent 100%);
+  }
+  .spotlight{
+    position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:radial-gradient(600px circle at var(--x,50%) var(--y,20%), rgba(53,196,176,0.07), transparent 60%);
+    transition:background .1s ease;
+  }
+
+  nav{
+    position:sticky; top:0; z-index:50;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:20px 6vw;
+    background:rgba(11,18,32,0.75);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  nav .name{font-family:'Space Grotesk'; font-weight:600; font-size:15px; letter-spacing:0.01em;}
+  nav .links{display:flex; gap:28px; font-size:14px; color:var(--text-muted);}
+  nav .links a{transition:color .2s; position:relative;}
+  nav .links a::after{
+    content:""; position:absolute; left:0; bottom:-4px; width:0; height:1px;
+    background:var(--accent-teal); transition:width .25s ease;
+  }
+  nav .links a:hover{color:var(--accent-teal);}
+  nav .links a:hover::after{width:100%;}
+  nav .links a.active{color:var(--accent-teal);}
+  @media (max-width:820px){ nav .links{display:none;} }
+
+  section{padding:100px 6vw;}
+  .hero{padding-top:110px; padding-bottom:90px;}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono'; font-size:12.5px; letter-spacing:0.08em;
+    color:var(--accent-teal); text-transform:uppercase;
+    border:1px solid var(--border); padding:6px 14px; border-radius:100px;
+    margin-bottom:28px;
+  }
+  .eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--accent-teal); box-shadow:0 0 8px var(--accent-teal); animation:pulse 2s infinite;}
+  @keyframes pulse{
+    0%,100%{opacity:1; transform:scale(1);}
+    50%{opacity:.5; transform:scale(1.3);}
+  }
+
+  .hero-metric{
+    font-family:'Space Grotesk'; font-weight:700;
+    font-size:clamp(56px, 11vw, 128px);
+    line-height:0.95;
+    letter-spacing:-0.02em;
+    background:linear-gradient(180deg, #FFFFFF 0%, var(--accent-teal) 130%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero-metric-label{
+    margin-top:14px; font-size:17px; color:var(--text-muted); max-width:580px;
+  }
+  .hero-name{margin-top:56px; font-family:'Space Grotesk'; font-size:clamp(22px,3.4vw,28px); font-weight:600; letter-spacing:0.01em;}
+  .hero-title{margin-top:6px; color:var(--text-muted); font-size:16px;}
+  .hero-cta{display:flex; gap:14px; margin-top:36px; flex-wrap:wrap;}
+  .btn{
+    font-family:'IBM Plex Mono'; font-size:13.5px;
+    padding:12px 22px; border-radius:8px; border:1px solid var(--border);
+    transition:all .2s ease; display:inline-flex; align-items:center; gap:8px;
+    cursor:pointer; background:transparent; color:var(--text-primary);
+  }
+  .btn-primary{background:var(--accent-teal); color:#04211D; border-color:var(--accent-teal); font-weight:600;}
+  .btn-primary:hover{background:#4fd7c3; transform:translateY(-2px);}
+  .btn-secondary:hover{border-color:var(--accent-teal); color:var(--accent-teal); transform:translateY(-2px);}
+
+  .section-head{margin-bottom:48px;}
+  .section-tag{font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--accent-amber); text-transform:uppercase; letter-spacing:0.08em;}
+  .section-title{font-family:'Space Grotesk'; font-size:clamp(26px,4vw,36px); font-weight:600; margin-top:10px;}
+
+  /* reveal on scroll */
+  .reveal{opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  /* Skills */
+  .skills-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;}
+  .skill-panel{background:var(--bg-panel); padding:28px; transition:background .3s ease;}
+  .skill-panel:hover{background:var(--bg-panel-alt);}
+  .skill-panel h3{font-family:'Space Grotesk'; font-size:15px; color:var(--accent-teal); margin-bottom:16px;}
+  .skill-panel ul{list-style:none; display:flex; flex-direction:column; gap:9px;}
+  .skill-panel li{font-size:14.5px; color:var(--text-muted); display:flex; align-items:baseline; gap:9px;}
+  .skill-panel li::before{content:"—"; color:var(--border); font-family:'IBM Plex Mono';}
+
+  /* Filter bar */
+  .filter-bar{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:36px;}
+  .filter-btn{
+    font-family:'IBM Plex Mono'; font-size:12.5px; padding:8px 16px; border-radius:100px;
+    border:1px solid var(--border); color:var(--text-muted); cursor:pointer; background:transparent;
+    transition:all .2s ease;
+  }
+  .filter-btn:hover{color:var(--text-primary); border-color:var(--accent-teal);}
+  .filter-btn.active{background:var(--accent-teal); color:#04211D; border-color:var(--accent-teal); font-weight:600;}
+
+  /* Projects */
+  .projects-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px,1fr)); gap:20px;}
+  .card{
+    background:var(--bg-panel); border:1px solid var(--border); border-radius:var(--radius);
+    padding:0; overflow:hidden; transition:transform .2s ease, border-color .25s ease, box-shadow .25s ease;
+    will-change:transform;
+  }
+  .card:hover{border-color:var(--accent-teal); box-shadow:0 12px 32px -12px rgba(53,196,176,0.25);}
+  .card.hidden{display:none;}
+  .card.flagship{
+    border-color:var(--accent-amber);
+    grid-column:1 / -1;
+    display:grid; grid-template-columns:minmax(220px,320px) 1fr;
+  }
+  .card.flagship .card-readout{grid-column:1/-1;}
+  @media (max-width:760px){ .card.flagship{grid-template-columns:1fr;} }
+  .flagship-badge{
+    font-family:'IBM Plex Mono'; font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+    background:rgba(242,169,78,0.14); color:var(--accent-amber); border:1px solid rgba(242,169,78,0.4);
+    padding:4px 10px; border-radius:100px;
+  }
+  .card-readout{
+    padding:18px 24px; background:var(--bg-panel-alt); border-bottom:1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .card-metric{font-family:'IBM Plex Mono'; font-size:14px; color:var(--accent-teal); font-weight:500;}
+  .card-status-wrap{display:flex; align-items:center; gap:8px;}
+  .card-status{width:7px; height:7px; border-radius:50%; background:var(--accent-amber);}
+  .card-status.done{background:var(--accent-teal);}
+  .status-label{font-family:'IBM Plex Mono'; font-size:11px; color:var(--text-muted); text-transform:uppercase;}
+  .card-body{padding:24px;}
+  .card-title{font-family:'Space Grotesk'; font-size:19px; font-weight:600; margin-bottom:8px;}
+  .card-tools{font-family:'IBM Plex Mono'; font-size:12px; color:var(--text-muted); margin-bottom:16px;}
+  .card-desc{font-size:14.5px; color:var(--text-muted); line-height:1.65;}
+  .card-highlights{list-style:none; margin-top:14px; display:flex; flex-direction:column; gap:6px;}
+  .card-highlights li{font-size:13.5px; color:var(--text-muted); display:flex; gap:8px; align-items:flex-start;}
+  .card-highlights li::before{content:"✓"; color:var(--accent-teal); font-family:'IBM Plex Mono'; flex-shrink:0;}
+  .card-links{display:flex; gap:16px; margin-top:18px; flex-wrap:wrap;}
+  .card-links a{font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--accent-teal); border-bottom:1px dotted var(--accent-teal); padding-bottom:1px;}
+  .card-links a:hover{color:#4fd7c3;}
+  .card-links .soon{color:var(--text-muted); border-bottom:1px dotted var(--text-muted); cursor:default;}
+
+  /* Timeline */
+  .timeline{border-left:2px solid var(--border); padding-left:32px; display:flex; flex-direction:column; gap:40px;}
+  .timeline-item{position:relative;}
+  .timeline-item::before{
+    content:""; position:absolute; left:-38px; top:4px; width:12px; height:12px;
+    border-radius:50%; background:var(--bg-deep); border:2px solid var(--accent-teal);
+  }
+  .timeline-date{font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--accent-amber); text-transform:uppercase; letter-spacing:0.05em;}
+  .timeline-role{font-family:'Space Grotesk'; font-size:19px; font-weight:600; margin-top:6px;}
+  .timeline-sub{color:var(--text-muted); font-size:14px; margin-top:2px;}
+
+  /* Contact / footer */
+  footer{padding:100px 6vw 60px; border-top:1px solid var(--border);}
+  .contact-metric{font-family:'Space Grotesk'; font-weight:700; font-size:clamp(36px,6vw,64px); margin-bottom:20px;}
+  .contact-grid{display:flex; flex-wrap:wrap; gap:40px; margin-top:36px;}
+  .contact-item .label{font-family:'IBM Plex Mono'; font-size:12px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;}
+  .contact-item .value{font-size:15.5px;}
+  .contact-item a:hover{color:var(--accent-teal);}
+  .foot-note{margin-top:70px; font-size:13px; color:var(--text-muted); font-family:'IBM Plex Mono';}
+
+  #back-to-top{
+    position:fixed; bottom:28px; right:28px; z-index:60;
+    width:44px; height:44px; border-radius:50%; background:var(--bg-panel);
+    border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
+    color:var(--accent-teal); cursor:pointer; opacity:0; pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+  }
+  #back-to-top.show{opacity:1; pointer-events:auto;}
+  #back-to-top:hover{transform:translateY(-3px); border-color:var(--accent-teal);}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="spotlight" id="spotlight"></div>
+
+<nav>
+  <div class="name display">MOSES OLUWATOSIN OLUSOLA</div>
+  <div class="links" id="nav-links">
+    <a href="#skills">Skills</a>
+    <a href="#projects">Projects</a>
+    <a href="#experience">Experience</a>
+    <a href="#contact">Contact</a>
+    <a href="https://public.tableau.com/shared/K93QFHBPT?:display_count=n&:origin=viz_share_link" target="_blank">Tableau ↗</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="eyebrow"><span class="dot"></span>OPEN TO REMOTE, CONTRACT &amp; INTERNSHIP ROLES</div>
+  <div class="hero-metric"><span id="count">0</span>M+</div>
+  <div class="hero-metric-label">records loaded, validated, and modeled — from a 10.5M-row enterprise retail build to citywide mobility and population data.</div>
+  <div class="hero-name">Moses Oluwatosin Olusola</div>
+  <div class="hero-title">Data Analyst &amp; Business Intelligence Consultant — SQL · Python · Power BI · Tableau · DAX</div>
+  <div class="hero-cta">
+    <a class="btn btn-primary" href="#projects">View Projects</a>
+    <a class="btn btn-secondary" href="mailto:vibinx321@gmail.com">Get in Touch</a>
+    <a class="btn btn-secondary" href="https://linkedin.com/in/moses-oluwatosin-107739380" target="_blank">LinkedIn ↗</a>
+  </div>
+</section>
+
+<section id="skills" class="reveal">
+  <div class="section-head">
+    <div class="section-tag">// Capabilities</div>
+    <div class="section-title">What I bring to a data team</div>
+  </div>
+  <div class="skills-grid">
+    <div class="skill-panel">
+      <h3>Languages &amp; Query</h3>
+      <ul>
+        <li>SQL (Advanced)</li>
+        <li>Python (Pandas, NumPy)</li>
+        <li>DAX</li>
+      </ul>
+    </div>
+    <div class="skill-panel">
+      <h3>BI &amp; Visualization</h3>
+      <ul>
+        <li>Power BI</li>
+        <li>Tableau</li>
+        <li>Dashboard &amp; KPI Design</li>
+      </ul>
+    </div>
+    <div class="skill-panel">
+      <h3>Analysis &amp; ML</h3>
+      <ul>
+        <li>Data Cleaning &amp; Validation</li>
+        <li>Statistical &amp; Trend Analysis</li>
+        <li>Machine Learning (Scikit-learn)</li>
+      </ul>
+    </div>
+    <div class="skill-panel">
+      <h3>Spreadsheets &amp; Modeling</h3>
+      <ul>
+        <li>Advanced Excel, Pivot Tables</li>
+        <li>VBA Macros</li>
+        <li>Power Query, Financial Modeling</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="projects" class="reveal">
+  <div class="section-head">
+    <div class="section-tag">// Selected Work</div>
+    <div class="section-title">Projects</div>
+  </div>
+
+  <div class="filter-bar" id="filter-bar">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="retail">Retail</button>
+    <button class="filter-btn" data-filter="mobility">Mobility</button>
+    <button class="filter-btn" data-filter="healthcare">Healthcare</button>
+    <button class="filter-btn" data-filter="ml">ML</button>
+  </div>
+
+  <div class="projects-grid" id="projects-grid">
+
+    <div class="card flagship" data-category="retail">
+      <div class="card-readout">
+        <span class="flagship-badge">★ Flagship Project</span>
+        <div class="card-status-wrap"><span class="card-status"></span><span class="status-label">In Progress</span></div>
+      </div>
+      <div class="card-body" style="display:flex; flex-direction:column; justify-content:center;">
+        <span class="card-metric mono" style="margin-bottom:10px; display:block;">10.5M+ records loaded</span>
+        <div class="card-title display" style="font-size:24px;">GlobalMart Retail Analytics</div>
+        <div class="card-tools mono">Python · Pandas · SQL · Power BI · Git · GitHub</div>
+        <div class="card-desc">Enterprise-scale retail analytics project analyzing over 10.5 million records, spanning data engineering, data quality assessment, validation, business intelligence, and dashboard development.</div>
+        <ul class="card-highlights">
+          <li>Automated validation scripts across revenue, profit, and pricing</li>
+          <li>Customer ID, Product ID, Store ID &amp; Supplier ID validation</li>
+          <li>Shipment validation and data quality reporting pipeline</li>
+        </ul>
+        <div class="card-links">
+          <a href="#" class="soon" title="Add your GitHub repo link here">GitHub (add link)</a>
+          <a href="#" class="soon" title="Add screenshots link here">Screenshots (add link)</a>
+          <span class="soon">Dashboard — coming soon</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" data-category="mobility">
+      <div class="card-readout">
+        <span class="card-metric mono">3.5M+ trips analyzed</span>
+        <div class="card-status-wrap"><span class="card-status done"></span><span class="status-label">Complete</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-title display">Cyclistic Bike-Share Analytics</div>
+        <div class="card-tools mono">SQL · Excel · Tableau</div>
+        <div class="card-desc">Analyzed over 3.5 million bike-share trips to identify behavioral differences between annual members and casual riders.</div>
+        <ul class="card-highlights">
+          <li>Customer segmentation</li>
+          <li>Seasonal &amp; usage trend analysis</li>
+          <li>Business recommendations for membership conversion</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" data-category="retail">
+      <div class="card-readout">
+        <span class="card-metric mono">4 KPI domains tracked</span>
+        <div class="card-status-wrap"><span class="card-status done"></span><span class="status-label">Complete</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-title display">Retail Operations Command Center</div>
+        <div class="card-tools mono">Power BI · DAX</div>
+        <div class="card-desc">Designed an executive-level dashboard tracking revenue, inventory, sales performance, and order trends, with dynamic filters and reusable DAX measures.</div>
+      </div>
+    </div>
+
+    <div class="card" data-category="mobility">
+      <div class="card-readout">
+        <span class="card-metric mono">Temp vs. demand model</span>
+        <div class="card-status-wrap"><span class="card-status done"></span><span class="status-label">Complete</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-title display">EcoRide Scooter Analytics</div>
+        <div class="card-tools mono">Google Sheets · Excel</div>
+        <div class="card-desc">One of my earliest analytics projects — examined scooter rental revenue drivers and pricing strategy for a micromobility operator.</div>
+        <ul class="card-highlights">
+          <li>Revenue analysis &amp; pricing strategy</li>
+          <li>Temperature vs. demand correlation</li>
+          <li>Weekend vs. weekday performance, built with pivot tables</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" data-category="retail">
+      <div class="card-readout">
+        <span class="card-metric mono">Top category: Electronics</span>
+        <div class="card-status-wrap"><span class="card-status done"></span><span class="status-label">Complete</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-title display">ShopEase E-Commerce Analytics</div>
+        <div class="card-tools mono">Excel · Google Sheets</div>
+        <div class="card-desc">Cleaned transactional sales data, rebuilt revenue calculations, and found that excessive discounting was quietly eroding profitability.</div>
+        <ul class="card-highlights">
+          <li>Missing value treatment</li>
+          <li>Revenue &amp; discount-impact analysis</li>
+          <li>Category performance &amp; business insights</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" data-category="healthcare">
+      <div class="card-readout">
+        <span class="card-metric mono">Organ health indicators</span>
+        <div class="card-status-wrap"><span class="card-status done"></span><span class="status-label">Complete</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-title display">Smoking Health Risk Analysis</div>
+        <div class="card-tools mono">Power BI</div>
+        <div class="card-desc">Built an interactive healthcare dashboard visualizing smoking-related health risks and demographic trends for non-clinical audiences.</div>
+      </div>
+    </div>
+
+    <div class="card" data-category="mobility">
+      <div class="card-readout">
+        <span class="card-metric mono">Multi-country comparison</span>
+        <div class="card-status-wrap"><span class="card-status done"></span><span class="status-label">Complete</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-title display">Population Dashboard</div>
+        <div class="card-tools mono">Tableau</div>
+        <div class="card-desc">Interactive dashboard visualizing population trends with geographic and time-series analysis across multiple countries.</div>
+        <ul class="card-highlights">
+          <li>Interactive geographic visualization</li>
+          <li>Time-series population trends</li>
+        </ul>
+        <div class="card-links">
+          <a href="https://public.tableau.com/shared/K93QFHBPT?:display_count=n&:origin=viz_share_link" target="_blank">View on Tableau Public →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" data-category="ml">
+      <div class="card-readout">
+        <span class="card-metric mono">Linear Regression model</span>
+        <div class="card-status-wrap"><span class="card-status done"></span><span class="status-label">Complete</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-title display">Life Expectancy Prediction (ML)</div>
+        <div class="card-tools mono">Python · Pandas · Scikit-learn · Seaborn</div>
+        <div class="card-desc">Built a predictive model estimating life expectancy from healthcare and socioeconomic indicators, with EDA to surface influential features.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="experience" class="reveal">
+  <div class="section-head">
+    <div class="section-tag">// Track Record</div>
+    <div class="section-title">Experience</div>
+  </div>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-date mono">2025 — Present</div>
+      <div class="timeline-role display">Independent Data &amp; BI Consultant</div>
+      <div class="timeline-sub">Self-Employed, Remote — Retail, healthcare, mobility &amp; e-commerce engagements</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-date mono">Certification</div>
+      <div class="timeline-role display">Google Data Analytics Professional Certificate</div>
+      <div class="timeline-sub">Data Cleaning · SQL · Tableau · Data Visualization · Data Storytelling</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-date mono">In Progress</div>
+      <div class="timeline-role display">B.Sc., University of Ibadan</div>
+      <div class="timeline-sub">Quantitative coursework supporting data analytics practice</div>
+    </div>
+  </div>
+</section>
+
+<footer id="contact" class="reveal">
+  <div class="section-tag">// Let's Work Together</div>
+  <div class="contact-metric display">Available now.</div>
+  <p style="color:var(--text-muted); max-width:520px;">Open to remote, contract, freelance, and internship opportunities — comfortable working async across time zones.</p>
+  <div class="contact-grid">
+    <div class="contact-item">
+      <div class="label">Email</div>
+      <div class="value"><a href="mailto:vibinx321@gmail.com">vibinx321@gmail.com</a></div>
+    </div>
+    <div class="contact-item">
+      <div class="label">Phone</div>
+      <div class="value">+234 703 957 5439</div>
+    </div>
+    <div class="contact-item">
+      <div class="label">LinkedIn</div>
+      <div class="value"><a href="https://linkedin.com/in/moses-oluwatosin-107739380" target="_blank">moses-oluwatosin</a></div>
+    </div>
+    <div class="contact-item">
+      <div class="label">Tableau</div>
+      <div class="value"><a href="https://public.tableau.com/shared/K93QFHBPT?:display_count=n&:origin=viz_share_link" target="_blank">Public Portfolio ↗</a></div>
+    </div>
+    <div class="contact-item">
+      <div class="label">Based In</div>
+      <div class="value">Nigeria (GMT+1)</div>
+    </div>
+  </div>
+  <div class="foot-note">© 2026 Moses Oluwatosin Olusola</div>
+</footer>
+
+<div id="back-to-top" title="Back to top">↑</div>
+
+<script>
+  // Cursor spotlight
+  const spotlight = document.getElementById('spotlight');
+  window.addEventListener('mousemove', (e) => {
+    spotlight.style.setProperty('--x', e.clientX + 'px');
+    spotlight.style.setProperty('--y', e.clientY + 'px');
+  });
+
+  // Count-up hero metric
+  const countEl = document.getElementById('count');
+  let started = false;
+  function countUp(){
+    if(started) return;
+    started = true;
+    const target = 10.5;
+    let current = 0;
+    const step = target / 40;
+    const interval = setInterval(() => {
+      current += step;
+      if(current >= target){ current = target; clearInterval(interval); }
+      countEl.textContent = current.toFixed(1);
+    }, 25);
+  }
+  const heroObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => { if(entry.isIntersecting) countUp(); });
+  }, { threshold: 0.5 });
+  heroObserver.observe(document.querySelector('.hero'));
+
+  // Reveal on scroll
+  const revealEls = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){ entry.target.classList.add('in'); revealObserver.unobserve(entry.target); }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => revealObserver.observe(el));
+
+  // Project filter
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  const cards = document.querySelectorAll('#projects-grid .card');
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      cards.forEach(card => {
+        if(filter === 'all' || card.dataset.category === filter){
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    });
+  });
+
+  // Active nav link on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('#nav-links a[href^="#"]');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(sec => {
+      const rect = sec.getBoundingClientRect();
+      if(rect.top <= 120 && rect.bottom >= 120) current = sec.id;
+    });
+    navLinks.forEach(link => {
+      link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+    });
+
+    // back to top button
+    document.getElementById('back-to-top').classList.toggle('show', window.scrollY > 600);
+  });
+
+  document.getElementById('back-to-top').addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Subtle tilt on project cards
+  cards.forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      card.style.transform = `perspective(600px) rotateX(${y * -3}deg) rotateY(${x * 3}deg) translateY(-2px)`;
+    });
+    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+  });
+</script>
+
+</body>
+</html>
