@@ -288,6 +288,21 @@ section { padding: 100px 6vw; }
 .card-body { padding: 24px; }
 .card-title { font-family: var(--font-display); font-size: 19px; font-weight: 600; margin-bottom: 8px; }
 .card-tools { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+.tool-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.tool-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--font-mono); font-size: 11.5px; color: var(--text-primary);
+  background: var(--bg-panel-alt); border: 1px solid var(--border);
+  padding: 4px 10px; border-radius: 20px; white-space: nowrap;
+}
+.kpi-mini-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 4px 0 18px; }
+.kpi-mini {
+  background: var(--bg-panel-alt); border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 8px; text-align: center;
+}
+.kpi-mini .kpi-mini-value { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--accent-teal); line-height: 1.1; }
+.kpi-mini .kpi-mini-label { font-family: var(--font-mono); font-size: 9.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 4px; }
+@media (max-width: 640px) { .kpi-mini-grid { grid-template-columns: repeat(2, 1fr); } }
 .card-desc { font-size: 14.5px; color: var(--text-muted); line-height: 1.65; }
 .card-highlights { list-style: none; margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
 .card-highlights li { font-size: 13.5px; color: var(--text-muted); display: flex; gap: 8px; align-items: flex-start; }
@@ -600,20 +615,33 @@ footer { padding: 100px 6vw 60px; border-top: 1px solid var(--border); }
     <div class="card flagship" data-category="retail">
       <div class="card-readout">
         <span class="flagship-badge">★ Flagship Project</span>
-        <div class="card-status-wrap"><span class="card-status"></span><span class="status-label">In Progress</span></div>
+        <div class="card-status-wrap"><span class="card-status done"></span><span class="status-label">✅ Completed</span></div>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;justify-content:center;">
-        <span class="card-metric mono" style="margin-bottom:10px;display:block;">10.5M+ records loaded</span>
+        <span class="card-metric mono" style="margin-bottom:10px;display:block;">4 Million+ Orders Analyzed</span>
         <div class="card-title display" style="font-size:24px;">GlobalMart Retail Analytics</div>
-        <div class="card-tools mono">Python · Pandas · SQL · Power BI · Git · GitHub</div>
-        <div class="card-desc">Enterprise-scale retail analytics project analyzing over 10.5 million records, spanning data engineering, data quality assessment, validation, business intelligence, and dashboard development.</div>
+        <div class="kpi-mini-grid">
+          <div class="kpi-mini"><div class="kpi-mini-value">$2.06B</div><div class="kpi-mini-label">Revenue</div></div>
+          <div class="kpi-mini"><div class="kpi-mini-value">$330.5M</div><div class="kpi-mini-label">Profit</div></div>
+          <div class="kpi-mini"><div class="kpi-mini-value">16.02%</div><div class="kpi-mini-label">Margin</div></div>
+          <div class="kpi-mini"><div class="kpi-mini-value">4M+</div><div class="kpi-mini-label">Orders</div></div>
+          <div class="kpi-mini"><div class="kpi-mini-value">818K+</div><div class="kpi-mini-label">Customers</div></div>
+        </div>
+        <div class="tool-badges">
+          <span class="tool-badge">🐍 Python</span>
+          <span class="tool-badge">🗄 SQL</span>
+          <span class="tool-badge">📊 Power BI</span>
+          <span class="tool-badge">🐼 Pandas</span>
+          <span class="tool-badge">🐙 Git</span>
+        </div>
+        <div class="card-desc">Built an end-to-end retail analytics solution using SQL, Python, and Power BI to analyze over 4 million retail transactions, uncover profitability trends, customer behavior, seasonal sales patterns, and executive-level business insights through an interactive dashboard and comprehensive business case study.</div>
         <ul class="card-highlights">
           <li>Automated validation scripts across revenue, profit, and pricing</li>
           <li>Customer ID, Product ID, Store ID &amp; Supplier ID validation</li>
           <li>Shipment validation and data quality reporting pipeline</li>
         </ul>
         <div class="card-links">
-          <a href="#" class="soon">GitHub (add link)</a>
+          <a href="https://github.com/mosessola/GlobalMart-Retail.git" target="_blank" rel="noopener">GitHub →</a>
           <a href="#" class="soon">Screenshots (add link)</a>
           <a href="#" onclick="openModal('globalmart');return false;">Launch Dashboard →</a>
         </div>
